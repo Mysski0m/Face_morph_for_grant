@@ -1,6 +1,5 @@
 import json
 
-
 with open("config.json", encoding="UTF-8") as file_in:
     data = json.load(file_in)
 

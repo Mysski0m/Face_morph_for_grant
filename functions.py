@@ -3,8 +3,8 @@ import dlib
 import numpy as np
 from scipy.spatial import Delaunay
 
-
 predictor_model = "./shape_predictor_68_face_landmarks.dat"
+
 
 def psnr(img1, img2):
     if img1.shape != img2.shape:
@@ -56,6 +56,7 @@ def affine_transform(input_image, input_triangle, output_triangle, size):
         borderMode=cv2.BORDER_REFLECT_101,
     )
     return output_image
+
 
 def draw_delaunay_triangles(img, points, triangles, color=(192, 192, 192), thickness=1):
     for t in triangles:

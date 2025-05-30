@@ -5,16 +5,15 @@ from PyQt5 import QtWidgets
 from progress.bar import IncrementalBar
 import time
 from functions import psnr, affine_transform, get_points, get_triangles, draw_delaunay_triangles
-from data_from_json import ADD_PRCNT_PPT_X, ADD_PRCNT_PPT_Y_DOWN, ADD_PRCNT_PPT_Y_UPPER, DEFAULT_ALPHA_VALUE, DEFAULT_ALPHA_VALUE_FLG, COUNT_OF_OUT_MORPHS
+from data_from_json import ADD_PRCNT_PPT_X, ADD_PRCNT_PPT_Y_DOWN, ADD_PRCNT_PPT_Y_UPPER, DEFAULT_ALPHA_VALUE, \
+    DEFAULT_ALPHA_VALUE_FLG, COUNT_OF_OUT_MORPHS
 from Ui import Ui
-
-
 
 if __name__ == "__main__":
     print()
     alpha = DEFAULT_ALPHA_VALUE
     if not DEFAULT_ALPHA_VALUE_FLG:
-        alpha =  (
+        alpha = (
             Ui().input_alpha()
         )  # чем ближе к 1, тем больше итоговое изображение будет похоже на вторую исходную
     if DEFAULT_ALPHA_VALUE:
@@ -109,10 +108,10 @@ if __name__ == "__main__":
 
         for i in points1_list:  # координаты точек face_box'а первого изображения
             if (
-                i[0] != 0
-                and i[0] != max_first_point1
-                and i[1] != 0
-                and i[1] != max_second_point1
+                    i[0] != 0
+                    and i[0] != max_first_point1
+                    and i[1] != 0
+                    and i[1] != max_second_point1
             ):
                 first_image_left_up_point_x = min(first_image_left_up_point_x, i[0])
                 first_image_left_up_point_y = min(first_image_left_up_point_y, i[1])
@@ -121,10 +120,10 @@ if __name__ == "__main__":
 
         for i in points2_list:  # координаты точек face_box'а второго изображения
             if (
-                i[0] != 0
-                and i[0] != max_first_point2
-                and i[1] != 0
-                and i[1] != max_second_point2
+                    i[0] != 0
+                    and i[0] != max_first_point2
+                    and i[1] != 0
+                    and i[1] != max_second_point2
             ):
                 second_image_left_up_point_x = min(second_image_left_up_point_x, i[0])
                 second_image_left_up_point_y = min(second_image_left_up_point_y, i[1])
@@ -132,58 +131,58 @@ if __name__ == "__main__":
                 second_image_right_down_point_y = max(second_image_right_down_point_y, i[1])
 
         img1 = img1_general[
-            max(
-                first_image_left_up_point_y
-                - int(
-                    (first_image_right_down_point_y - first_image_left_up_point_y)
-                    * ADD_PRCNT_PPT_Y_UPPER
-                ),
-                0,
-            ) : first_image_right_down_point_y
-            + int(
-                (first_image_right_down_point_y - first_image_left_up_point_y)
-                * ADD_PRCNT_PPT_Y_DOWN
-            ),
-            max(
-                first_image_left_up_point_x
-                - int(
-                    (first_image_right_down_point_x - first_image_left_up_point_x)
-                    * ADD_PRCNT_PPT_X
-                ),
-                0,
-            ) : first_image_right_down_point_x
-            + int(
-                (first_image_right_down_point_x - first_image_left_up_point_x)
-                * ADD_PRCNT_PPT_X
-            ),
-        ].copy()
+               max(
+                   first_image_left_up_point_y
+                   - int(
+                       (first_image_right_down_point_y - first_image_left_up_point_y)
+                       * ADD_PRCNT_PPT_Y_UPPER
+                   ),
+                   0,
+               ): first_image_right_down_point_y
+                  + int(
+                   (first_image_right_down_point_y - first_image_left_up_point_y)
+                   * ADD_PRCNT_PPT_Y_DOWN
+               ),
+               max(
+                   first_image_left_up_point_x
+                   - int(
+                       (first_image_right_down_point_x - first_image_left_up_point_x)
+                       * ADD_PRCNT_PPT_X
+                   ),
+                   0,
+               ): first_image_right_down_point_x
+                  + int(
+                   (first_image_right_down_point_x - first_image_left_up_point_x)
+                   * ADD_PRCNT_PPT_X
+               ),
+               ].copy()
 
         img2 = img2[
-            max(
-                second_image_left_up_point_y
-                - int(
-                    (second_image_right_down_point_y - second_image_left_up_point_y)
-                    * ADD_PRCNT_PPT_Y_UPPER
-                ),
-                0,
-            ) : second_image_right_down_point_y
-            + int(
-                (second_image_right_down_point_y - second_image_left_up_point_y)
-                * ADD_PRCNT_PPT_Y_DOWN
-            ),
-            max(
-                second_image_left_up_point_x
-                - int(
-                    (second_image_right_down_point_x - second_image_left_up_point_x)
-                    * ADD_PRCNT_PPT_X
-                ),
-                0,
-            ) : second_image_right_down_point_x
-            + int(
-                (second_image_right_down_point_x - second_image_left_up_point_x)
-                * ADD_PRCNT_PPT_X
-            ),
-        ].copy()
+               max(
+                   second_image_left_up_point_y
+                   - int(
+                       (second_image_right_down_point_y - second_image_left_up_point_y)
+                       * ADD_PRCNT_PPT_Y_UPPER
+                   ),
+                   0,
+               ): second_image_right_down_point_y
+                  + int(
+                   (second_image_right_down_point_y - second_image_left_up_point_y)
+                   * ADD_PRCNT_PPT_Y_DOWN
+               ),
+               max(
+                   second_image_left_up_point_x
+                   - int(
+                       (second_image_right_down_point_x - second_image_left_up_point_x)
+                       * ADD_PRCNT_PPT_X
+                   ),
+                   0,
+               ): second_image_right_down_point_x
+                  + int(
+                   (second_image_right_down_point_x - second_image_left_up_point_x)
+                   * ADD_PRCNT_PPT_X
+               ),
+               ].copy()
 
         if img1.shape > img2.shape:
             img2 = psnr(img1, img2)
@@ -273,8 +272,8 @@ if __name__ == "__main__":
                 tri_rect1.append(((tri1[i][0] - rect1[0]), (tri1[i][1] - rect1[1])))
                 tri_rect2.append(((tri2[i][0] - rect2[0]), (tri2[i][1] - rect2[1])))
 
-            img1_rect = img1[rect1[1] : rect1[1] + rect1[3], rect1[0] : rect1[0] + rect1[2]]
-            img2_rect = img2[rect2[1] : rect2[1] + rect2[3], rect2[0] : rect2[0] + rect2[2]]
+            img1_rect = img1[rect1[1]: rect1[1] + rect1[3], rect1[0]: rect1[0] + rect1[2]]
+            img2_rect = img2[rect2[1]: rect2[1] + rect2[3], rect2[0]: rect2[0] + rect2[2]]
 
             # cv2.imwrite(Ui().save_file(num), img1_rect) #
             # cv2.imwrite(Ui().save_file(num), img2_rect) #
@@ -288,10 +287,10 @@ if __name__ == "__main__":
             mask = np.zeros((rect[3], rect[2], 3), dtype=np.float32)
             cv2.fillConvexPoly(mask, np.int32(tri_rect_warped), (1.0, 1.0, 1.0), 16, 0)
 
-            img_morphed[rect[1] : rect[1] + rect[3], rect[0] : rect[0] + rect[2]] = (
-                img_morphed[rect[1] : rect[1] + rect[3], rect[0] : rect[0] + rect[2]]
-                * (1 - mask)
-                + img_rect * mask
+            img_morphed[rect[1]: rect[1] + rect[3], rect[0]: rect[0] + rect[2]] = (
+                    img_morphed[rect[1]: rect[1] + rect[3], rect[0]: rect[0] + rect[2]]
+                    * (1 - mask)
+                    + img_rect * mask
             )
             bar.next()
 
