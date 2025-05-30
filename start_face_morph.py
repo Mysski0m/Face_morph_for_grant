@@ -1,115 +1,13 @@
 import numpy as np
 import cv2
-import dlib
-from scipy.spatial import Delaunay
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QInputDialog
 from progress.bar import IncrementalBar
 import time
-import json
+from functions import psnr, affine_transform, get_points, get_triangles, draw_delaunay_triangles
+from data_from_json import ADD_PRCNT_PPT_X, ADD_PRCNT_PPT_Y_DOWN, ADD_PRCNT_PPT_Y_UPPER, DEFAULT_ALPHA_VALUE, DEFAULT_ALPHA_VALUE_FLG, COUNT_OF_OUT_MORPHS
+from Ui import Ui
 
-with open("config.json", encoding="UTF-8") as file_in:
-    data = json.load(file_in)
-
-PATH_TO_SAVE_RESULT = data["path_to_save_result"]
-PATH_TO_IMPORT_IMAGES = data["path_to_import_images"]
-ADD_PRCNT_PPT_Y_UPPER = float(data["add_prcnt_ppt_y_upper"])
-ADD_PRCNT_PPT_Y_DOWN = float(data["add_prcnt_ppt_y_down"])
-ADD_PRCNT_PPT_X = float(data["add_prcnt_ppt_x"])
-DEFAULT_ALPHA_VALUE_FLG = data["enable_default_alpha_value"]
-DEFAULT_ALPHA_VALUE = float(data["default_alpha_value"])
-COUNT_OF_OUT_MORPHS = data["count_of_out_morphs"]
-predictor_model = "./shape_predictor_68_face_landmarks.dat"
-
-
-class Ui(QtWidgets.QDialog):
-    def __init__(self):
-        super(Ui, self).__init__()
-
-    def filename1_ButtonPressed(self):
-        res = QFileDialog.getOpenFileName(
-            self, "Open first image", PATH_TO_IMPORT_IMAGES, ""
-        )
-        img1_name = str(res[0])
-
-        return img1_name
-
-    def filename2_ButtonPressed_2(self, num):
-        res = QFileDialog.getOpenFileName(
-            self, f"Open second image ({num + 1})", PATH_TO_IMPORT_IMAGES, ""
-        )
-        img2_name = str(res[0])
-
-        return img2_name
-
-    def save_file(self, num):
-        res = QFileDialog.getSaveFileName(
-            self, f"Save result ({num + 1})", PATH_TO_SAVE_RESULT, "JPG File (*.jpg)"
-        )
-        return str(res[0])
-
-    def input_alpha(self):
-        res = QInputDialog.getText(
-            self,
-            "Параметр alpha",
-            "Введите параметр прозрачности (от 0 до 1)\n"
-            "Чем ближе к 0, тем больше изображение будет похоже на первое фото",
-        )
-
-        return float(res[0])
-
-
-def psnr(img1, img2):
-    if img1.shape != img2.shape:
-        x, y = img1.shape[:2]
-        res = (y, x)
-        img2 = cv2.resize(img2, res, interpolation=cv2.INTER_LINEAR)
-    return img2
-
-
-def get_points(image):
-    face_detector = dlib.get_frontal_face_detector()
-    face_pose_predictor = dlib.shape_predictor(predictor_model)
-    try:
-        detected_face = face_detector(image, 1)[0]
-    except:
-        print("No face detected in image {}".format(image))
-    pose_landmarks = face_pose_predictor(image, detected_face)
-    points = []
-    for p in pose_landmarks.parts():
-        points.append([p.x, p.y])
-    x = image.shape[1] - 1
-    y = image.shape[0] - 1
-    points.append([0, 0])
-    points.append([x // 2, 0])
-    points.append([x, 0])
-    points.append([x, y // 2])
-    points.append([x, y])
-    points.append([x // 2, y])
-    points.append([0, y])
-    points.append([0, y // 2])
-
-    return np.array(points)
-
-
-def get_triangles(points):
-    return Delaunay(points).simplices
-
-
-def affine_transform(input_image, input_triangle, output_triangle, size):
-    warp_matrix = cv2.getAffineTransform(
-        np.float32(input_triangle), np.float32(output_triangle)
-    )
-    output_image = cv2.warpAffine(
-        input_image,
-        warp_matrix,
-        (size[0], size[1]),
-        None,
-        flags=cv2.INTER_LINEAR,
-        borderMode=cv2.BORDER_REFLECT_101,
-    )
-    return output_image
 
 
 if __name__ == "__main__":
@@ -397,17 +295,29 @@ if __name__ == "__main__":
             )
             bar.next()
 
-            print('print')
-            cv2.imwrite(Ui().save_file(num), img_morphed)  #
-            # cv2.imwrite(Ui().save_file(num), warped_img2)  #
-
         bar.finish()
 
         img_morphed = np.uint8(img_morphed)
+
+        # Создаём копии изображений
+        img_morphed_with_triangles = img_morphed.copy()
+        img1_with_triangles = np.uint8(img1.copy())
+        img2_with_triangles = np.uint8(img2.copy())
+
+        # Отрисовываем треугольники
+        draw_delaunay_triangles(img_morphed_with_triangles, points, triangles)
+        draw_delaunay_triangles(img1_with_triangles, points1, triangles)
+        draw_delaunay_triangles(img2_with_triangles, points2, triangles)
+
         print()
         print(f"Запись готового изображения ({num + 1})...")
         time.sleep(1)
         cv2.imwrite(Ui().save_file(num), img_morphed)
+
+        cv2.imwrite(Ui().save_file(num), img_morphed_with_triangles)
+        cv2.imwrite(Ui().save_file(num), img1_with_triangles)
+        cv2.imwrite(Ui().save_file(num), img2_with_triangles)
+
         print(f"Done! ({num + 1})")
         print()
         time.sleep(1)
