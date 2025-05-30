@@ -1,6 +1,6 @@
 {
-	"path_to_save_result": "../Face_Morph/papka",
-	"path_to_import_images": "../Face_Morph/papka",
+	"path_to_save_result": "../Face_morph_for_grant/papka",
+	"path_to_import_images": "../Face_morph_for_grant/papka",
 	"add_prcnt_ppt_y_upper": 0.7,
 	"add_prcnt_ppt_y_down": 0.20,
 	"add_prcnt_ppt_x": 0.15,
